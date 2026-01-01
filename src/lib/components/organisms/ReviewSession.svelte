@@ -4,6 +4,7 @@
 	import { cardOperations, db } from '$lib/db';
 	import { calculateNextReview, getButtonLabels } from '$lib/algorithms/scheduler';
 	import Button from '../atoms/Button.svelte';
+	import MarkdownRenderer from '../atoms/MarkdownRenderer.svelte';
 
 	interface Props {
 		deckId: number;
@@ -149,8 +150,8 @@
 				<!-- Front -->
 				<div class="mb-6">
 					<div class="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-2">Question</div>
-					<div class="text-xl text-gray-900 dark:text-gray-100 whitespace-pre-wrap">
-						{currentCard.front}
+					<div class="text-xl">
+						<MarkdownRenderer content={currentCard.front} />
 					</div>
 				</div>
 
@@ -158,8 +159,8 @@
 				{#if showAnswer}
 					<div class="border-t border-gray-200 dark:border-gray-700 pt-6">
 						<div class="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-2">Answer</div>
-						<div class="text-xl text-gray-900 dark:text-gray-100 whitespace-pre-wrap">
-							{currentCard.back}
+						<div class="text-xl">
+							<MarkdownRenderer content={currentCard.back} />
 						</div>
 					</div>
 				{/if}

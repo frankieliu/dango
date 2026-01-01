@@ -5,6 +5,7 @@
 	import Button from '$lib/components/atoms/Button.svelte';
 	import Input from '$lib/components/atoms/Input.svelte';
 	import SearchBar from '$lib/components/atoms/SearchBar.svelte';
+	import MarkdownRenderer from '$lib/components/atoms/MarkdownRenderer.svelte';
 	import CardForm from '$lib/components/organisms/CardForm.svelte';
 	import CardEditModal from '$lib/components/organisms/CardEditModal.svelte';
 	import DeckEditModal from '$lib/components/organisms/DeckEditModal.svelte';
@@ -299,13 +300,17 @@
 														<span class="text-sm font-semibold text-gray-500 dark:text-gray-400"
 															>Front:</span
 														>
-														<p class="text-gray-900 dark:text-gray-100 break-words">{card.front}</p>
+														<div class="break-words">
+															<MarkdownRenderer content={card.front} />
+														</div>
 													</div>
 													<div>
 														<span class="text-sm font-semibold text-gray-500 dark:text-gray-400"
 															>Back:</span
 														>
-														<p class="text-gray-900 dark:text-gray-100 break-words">{card.back}</p>
+														<div class="break-words">
+															<MarkdownRenderer content={card.back} />
+														</div>
 													</div>
 													{#if card.tags.length > 0}
 														<div class="mt-2 flex gap-1 flex-wrap">
