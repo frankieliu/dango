@@ -9,6 +9,7 @@
 	import CardForm from '$lib/components/organisms/CardForm.svelte';
 	import CardEditModal from '$lib/components/organisms/CardEditModal.svelte';
 	import DeckEditModal from '$lib/components/organisms/DeckEditModal.svelte';
+	import ImportModal from '$lib/components/organisms/ImportModal.svelte';
 	import ThemeToggle from '$lib/components/atoms/ThemeToggle.svelte';
 
 	let decks = $state<Deck[]>([]);
@@ -16,6 +17,7 @@
 	let cards = $state<Card[]>([]);
 	let isLoading = $state(true);
 	let showNewDeckForm = $state(false);
+	let showImportModal = $state(false);
 	let newDeckName = $state('');
 	let editingCard = $state<Card | null>(null);
 	let editingDeck = $state<Deck | null>(null);
@@ -235,9 +237,14 @@
 
 						<!-- Add Card Form -->
 						<div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-							<h2 class="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">
-								Add Card to {selectedDeck.name}
-							</h2>
+							<div class="flex items-center justify-between mb-4">
+								<h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">
+									Add Card to {selectedDeck.name}
+								</h2>
+								<Button variant="secondary" onclick={() => (showImportModal = true)}>
+									Import Markdown
+								</Button>
+							</div>
 							<CardForm deckId={selectedDeck.id!} onSuccess={handleCardAdded} />
 						</div>
 
@@ -414,5 +421,14 @@
 		deck={editingDeck}
 		onClose={() => (editingDeck = null)}
 		onSuccess={loadDecks}
+	/>
+{/if}
+
+<!-- Import Modal -->
+{#if showImportModal && selectedDeck}
+	<ImportModal
+		deckId={selectedDeck.id!}
+		onClose={() => (showImportModal = false)}
+		onSuccess={handleCardAdded}
 	/>
 {/if}
