@@ -10,7 +10,7 @@
 
 	let { images = $bindable([]), onAdd, onRemove, maxImages = 5 }: Props = $props();
 
-	let fileInput: HTMLInputElement;
+	let fileInput = $state<HTMLInputElement>();
 	let error = $state('');
 
 	async function handleFileSelect(e: Event) {
@@ -60,7 +60,7 @@
 			/>
 			<button
 				type="button"
-				onclick={() => fileInput.click()}
+				onclick={() => fileInput?.click()}
 				class="px-4 py-2 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600
 					hover:border-blue-500 dark:hover:border-blue-400 transition-colors
 					text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400

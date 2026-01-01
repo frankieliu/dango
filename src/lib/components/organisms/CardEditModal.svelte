@@ -110,9 +110,9 @@
 			/>
 
 			<div>
-				<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+				<div class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
 					Images (Optional)
-				</label>
+				</div>
 				<ImageUpload images={attachments} onAdd={handleAddImage} onRemove={handleRemoveImage} />
 			</div>
 
