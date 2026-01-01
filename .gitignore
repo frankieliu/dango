@@ -1,0 +1,58 @@
+# Dependencies
+node_modules/
+
+# Output
+.output
+.vercel
+.netlify
+.wrangler
+/.svelte-kit
+/build
+dist/
+
+# OS
+.DS_Store
+Thumbs.db
+*~
+
+# Environment variables
+.env
+.env.*
+!.env.example
+!.env.test
+
+# Vite
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+
+# Logs
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*.swn
+.project
+.classpath
+.settings/
+
+# Testing
+coverage/
+.nyc_output/
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Package manager lock files (optional - uncomment if you want to exclude them)
+# pnpm-lock.yaml
+# yarn.lock
+# package-lock.json
