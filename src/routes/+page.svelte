@@ -4,6 +4,7 @@
 	import type { Deck, Card } from '$lib/types';
 	import Button from '$lib/components/atoms/Button.svelte';
 	import Input from '$lib/components/atoms/Input.svelte';
+	import SearchBar from '$lib/components/atoms/SearchBar.svelte';
 	import CardForm from '$lib/components/organisms/CardForm.svelte';
 	import CardEditModal from '$lib/components/organisms/CardEditModal.svelte';
 	import DeckEditModal from '$lib/components/organisms/DeckEditModal.svelte';
@@ -17,6 +18,38 @@
 	let newDeckName = $state('');
 	let editingCard = $state<Card | null>(null);
 	let editingDeck = $state<Deck | null>(null);
+	let searchQuery = $state('');
+	let selectedTags = $state<string[]>([]);
+
+	// Filtered cards based on search and tags
+	let filteredCards = $derived(() => {
+		let filtered = cards;
+
+		// Filter by search query
+		if (searchQuery.trim()) {
+			const query = searchQuery.toLowerCase();
+			filtered = filtered.filter(
+				(card) =>
+					card.front.toLowerCase().includes(query) || card.back.toLowerCase().includes(query)
+			);
+		}
+
+		// Filter by tags
+		if (selectedTags.length > 0) {
+			filtered = filtered.filter((card) => selectedTags.some((tag) => card.tags.includes(tag)));
+		}
+
+		return filtered;
+	});
+
+	// Get all unique tags from cards
+	let allTags = $derived(() => {
+		const tagsSet = new Set<string>();
+		cards.forEach((card) => {
+			card.tags.forEach((tag) => tagsSet.add(tag));
+		});
+		return Array.from(tagsSet).sort();
+	});
 
 	onMount(async () => {
 		await loadDecks();
@@ -84,6 +117,19 @@
 		editingDeck = deck;
 	}
 
+	function toggleTag(tag: string) {
+		if (selectedTags.includes(tag)) {
+			selectedTags = selectedTags.filter((t) => t !== tag);
+		} else {
+			selectedTags = [...selectedTags, tag];
+		}
+	}
+
+	function clearFilters() {
+		searchQuery = '';
+		selectedTags = [];
+	}
+
 </script>
 
 <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -93,7 +139,12 @@
 				<h1 class="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">🍡 Dango</h1>
 				<p class="text-gray-600 dark:text-gray-400">A modern flashcard app</p>
 			</div>
-			<ThemeToggle />
+			<div class="flex items-center gap-3">
+				<a href="/stats">
+					<Button variant="secondary">📊 Statistics</Button>
+				</a>
+				<ThemeToggle />
+			</div>
 		</header>
 
 		{#if isLoading}
@@ -191,16 +242,56 @@
 
 						<!-- Cards List -->
 						<div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-							<h2 class="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">
-								Cards ({cards.length})
-							</h2>
+							<div class="flex items-center justify-between mb-4">
+								<h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">
+									Cards ({filteredCards().length}{filteredCards().length !== cards.length
+										? ` of ${cards.length}`
+										: ''})
+								</h2>
+								{#if searchQuery || selectedTags.length > 0}
+									<Button variant="secondary" onclick={clearFilters}>Clear Filters</Button>
+								{/if}
+							</div>
+
+							<!-- Search Bar -->
+							<div class="mb-4">
+								<SearchBar bind:value={searchQuery} placeholder="Search cards..." />
+							</div>
+
+							<!-- Tag Filter -->
+							{#if allTags().length > 0}
+								<div class="mb-4">
+									<div class="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-2">
+										Filter by tags:
+									</div>
+									<div class="flex flex-wrap gap-2">
+										{#each allTags() as tag}
+											<button
+												onclick={() => toggleTag(tag)}
+												class="px-3 py-1 rounded-full text-sm transition-colors {selectedTags.includes(
+													tag
+												)
+													? 'bg-blue-600 dark:bg-blue-500 text-white'
+													: 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'}"
+											>
+												{tag}
+											</button>
+										{/each}
+									</div>
+								</div>
+							{/if}
+
 							{#if cards.length === 0}
 								<p class="text-gray-600 dark:text-gray-400 text-center py-8">
 									No cards yet. Add your first card above!
 								</p>
+							{:else if filteredCards().length === 0}
+								<p class="text-gray-600 dark:text-gray-400 text-center py-8">
+									No cards match your search or filters.
+								</p>
 							{:else}
 								<div class="space-y-3">
-									{#each cards as card}
+									{#each filteredCards() as card}
 										<div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
 											<div class="flex justify-between items-start gap-4">
 												<div class="flex-1 min-w-0">
