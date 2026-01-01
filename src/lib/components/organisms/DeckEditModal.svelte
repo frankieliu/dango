@@ -12,10 +12,16 @@
 
 	let { deck, onClose, onSuccess }: Props = $props();
 
-	let name = $state(deck.name);
-	let description = $state(deck.description || '');
+	let name = $state('');
+	let description = $state('');
 	let isSubmitting = $state(false);
 	let error = $state('');
+
+	// Initialize form when deck changes
+	$effect(() => {
+		name = deck.name;
+		description = deck.description || '';
+	});
 
 	async function handleSubmit() {
 		if (!name.trim()) {

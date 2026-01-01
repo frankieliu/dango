@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import type { Card } from '$lib/types';
 	import Button from '../atoms/Button.svelte';
 	import Input from '../atoms/Input.svelte';
@@ -13,11 +14,18 @@
 
 	let { card, onClose, onSuccess }: Props = $props();
 
-	let front = $state(card.front);
-	let back = $state(card.back);
-	let tags = $state(card.tags.join(', '));
+	let front = $state('');
+	let back = $state('');
+	let tags = $state('');
 	let isSubmitting = $state(false);
 	let error = $state('');
+
+	// Initialize form when card changes
+	$effect(() => {
+		front = card.front;
+		back = card.back;
+		tags = card.tags.join(', ');
+	});
 
 	async function handleSubmit() {
 		if (!front.trim() || !back.trim()) {
