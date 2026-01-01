@@ -4,7 +4,9 @@
 	import Button from '../atoms/Button.svelte';
 	import Input from '../atoms/Input.svelte';
 	import Textarea from '../atoms/Textarea.svelte';
+	import ImageUpload from '../atoms/ImageUpload.svelte';
 	import { cardOperations } from '$lib/db';
+	import { fileToBase64, isValidImageFile } from '$lib/utils/file';
 
 	interface Props {
 		card: Card;
@@ -17,6 +19,7 @@
 	let front = $state('');
 	let back = $state('');
 	let tags = $state('');
+	let attachments = $state<string[]>([]);
 	let isSubmitting = $state(false);
 	let error = $state('');
 
@@ -25,7 +28,16 @@
 		front = card.front;
 		back = card.back;
 		tags = card.tags.join(', ');
+		attachments = card.attachments || [];
 	});
+
+	function handleAddImage(dataUrl: string) {
+		attachments = [...attachments, dataUrl];
+	}
+
+	function handleRemoveImage(index: number) {
+		attachments = attachments.filter((_, i) => i !== index);
+	}
 
 	async function handleSubmit() {
 		if (!front.trim() || !back.trim()) {
@@ -44,6 +56,7 @@
 					.split(',')
 					.map((t) => t.trim())
 					.filter((t) => t.length > 0),
+				attachments: attachments.length > 0 ? attachments : undefined,
 				modified: Date.now()
 			});
 
@@ -95,6 +108,13 @@
 				label="Tags"
 				placeholder="Comma-separated tags (e.g., vocabulary, grammar)"
 			/>
+
+			<div>
+				<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+					Images (Optional)
+				</label>
+				<ImageUpload images={attachments} onAdd={handleAddImage} onRemove={handleRemoveImage} />
+			</div>
 
 			<div class="flex gap-2">
 				<Button type="submit" disabled={isSubmitting || !front.trim() || !back.trim()}>

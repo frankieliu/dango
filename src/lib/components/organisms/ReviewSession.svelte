@@ -153,6 +153,17 @@
 					<div class="text-xl">
 						<MarkdownRenderer content={currentCard.front} />
 					</div>
+					{#if currentCard.attachments && currentCard.attachments.length > 0}
+						<div class="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-3">
+							{#each currentCard.attachments as attachment, index}
+								<img
+									src={attachment}
+									alt="Attachment {index + 1}"
+									class="w-full h-32 object-cover rounded-lg border border-gray-200 dark:border-gray-700"
+								/>
+							{/each}
+						</div>
+					{/if}
 				</div>
 
 				<!-- Back (revealed) -->
