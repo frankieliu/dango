@@ -8,15 +8,25 @@
 
 	let { content, class: className = '' }: Props = $props();
 
-	let html = $derived(renderMarkdown(content));
+	let htmlPromise = $derived(renderMarkdown(content));
 </script>
 
-<div
-	class="markdown-content {className}"
-	data-testid="markdown-renderer"
->
-	{@html html}
-</div>
+{#await htmlPromise}
+	<div class="markdown-content {className} text-gray-600 dark:text-gray-400">
+		Loading...
+	</div>
+{:then html}
+	<div
+		class="markdown-content {className}"
+		data-testid="markdown-renderer"
+	>
+		{@html html}
+	</div>
+{:catch error}
+	<div class="markdown-content {className} text-red-600 dark:text-red-400">
+		Error rendering content: {error.message}
+	</div>
+{/await}
 
 <style>
 	:global(.markdown-content) {
@@ -44,11 +54,17 @@
 	}
 
 	:global(.markdown-content pre) {
-		@apply p-4 rounded-lg bg-gray-100 dark:bg-gray-800 overflow-x-auto mb-4;
+		@apply mb-4 rounded-lg overflow-x-auto;
 	}
 
 	:global(.markdown-content pre code) {
-		@apply p-0 bg-transparent text-gray-900 dark:text-gray-100;
+		@apply p-0 bg-transparent;
+	}
+
+	/* Shiki pre elements already have background colors */
+	:global(.markdown-content pre.shiki),
+	:global(.markdown-content pre.shiki code) {
+		@apply bg-transparent;
 	}
 
 	:global(.markdown-content a) {

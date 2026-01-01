@@ -1,6 +1,7 @@
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
 import katex from 'katex';
+import { highlightCode } from './highlight';
 
 /**
  * Configure marked options
@@ -11,6 +12,14 @@ marked.setOptions({
 	headerIds: false, // Don't add IDs to headers
 	mangle: false // Don't mangle email addresses
 });
+
+/**
+ * Detect if we're in dark mode
+ */
+function isDarkMode(): boolean {
+	if (typeof window === 'undefined') return false;
+	return document.documentElement.classList.contains('dark');
+}
 
 /**
  * Render inline and block math with KaTeX
@@ -72,7 +81,84 @@ function renderMath(text: string): string {
 /**
  * Render markdown to safe HTML
  */
-export function renderMarkdown(markdown: string): string {
+export async function renderMarkdown(markdown: string): Promise<string> {
+	if (!markdown) return '';
+
+	try {
+		// First, render math expressions
+		let processed = renderMath(markdown);
+
+		// Extract code blocks and highlight them
+		const codeBlocks: { placeholder: string; html: string }[] = [];
+		const isDark = isDarkMode();
+
+		// Match fenced code blocks
+		const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
+		const matches = Array.from(processed.matchAll(codeBlockRegex));
+
+		// Process code blocks asynchronously
+		for (let i = 0; i < matches.length; i++) {
+			const match = matches[i];
+			const lang = match[1] || 'text';
+			const code = match[2];
+			const placeholder = `__CODE_BLOCK_${i}__`;
+
+			const highlightedHtml = await highlightCode(code, lang, isDark);
+			codeBlocks.push({ placeholder, html: highlightedHtml });
+
+			// Replace code block with placeholder
+			processed = processed.replace(match[0], placeholder);
+		}
+
+		// Then, render markdown
+		let html = marked.parse(processed) as string;
+
+		// Replace placeholders with highlighted code
+		codeBlocks.forEach(({ placeholder, html: codeHtml }) => {
+			html = html.replace(placeholder, codeHtml);
+		});
+
+		// Sanitize HTML to prevent XSS attacks
+		return DOMPurify.sanitize(html, {
+			ALLOWED_TAGS: [
+				'p',
+				'br',
+				'strong',
+				'em',
+				'u',
+				'code',
+				'pre',
+				'a',
+				'ul',
+				'ol',
+				'li',
+				'blockquote',
+				'h1',
+				'h2',
+				'h3',
+				'h4',
+				'h5',
+				'h6',
+				'hr',
+				'del',
+				'mark',
+				'sup',
+				'sub',
+				'span', // KaTeX and Shiki use spans
+				'div' // KaTeX and Shiki use divs
+			],
+			ALLOWED_ATTR: ['href', 'title', 'target', 'rel', 'class', 'style', 'aria-hidden'] // KaTeX and Shiki need class and style
+		});
+	} catch (error) {
+		console.error('Error rendering markdown:', error);
+		return markdown; // Fallback to plain text
+	}
+}
+
+/**
+ * Synchronous version for simple cases (without code highlighting)
+ */
+export function renderMarkdownSync(markdown: string): string {
 	if (!markdown) return '';
 
 	try {
@@ -108,14 +194,14 @@ export function renderMarkdown(markdown: string): string {
 				'mark',
 				'sup',
 				'sub',
-				'span', // KaTeX uses spans
-				'div' // KaTeX uses divs
+				'span',
+				'div'
 			],
-			ALLOWED_ATTR: ['href', 'title', 'target', 'rel', 'class', 'style', 'aria-hidden'] // KaTeX needs class and style
+			ALLOWED_ATTR: ['href', 'title', 'target', 'rel', 'class', 'style', 'aria-hidden']
 		});
 	} catch (error) {
 		console.error('Error rendering markdown:', error);
-		return markdown; // Fallback to plain text
+		return markdown;
 	}
 }
 
