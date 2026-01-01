@@ -29,6 +29,8 @@
 {/await}
 
 <style>
+	@reference '../../../app.css';
+
 	:global(.markdown-content) {
 		@apply text-gray-900 dark:text-gray-100;
 	}
