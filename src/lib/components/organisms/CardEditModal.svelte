@@ -56,7 +56,7 @@
 					.split(',')
 					.map((t) => t.trim())
 					.filter((t) => t.length > 0),
-				attachments: attachments.length > 0 ? attachments : undefined,
+				attachments: attachments.length > 0 ? [...attachments] : undefined,
 				modified: Date.now()
 			});
 
