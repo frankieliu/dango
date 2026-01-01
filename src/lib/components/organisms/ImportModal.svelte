@@ -162,10 +162,11 @@
 
 				<!-- Markdown File -->
 				<div>
-					<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+					<label for="markdown-file" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
 						Markdown File (.md)
 					</label>
 					<input
+						id="markdown-file"
 						type="file"
 						accept=".md,.markdown,.txt"
 						onchange={handleMarkdownFile}
@@ -178,10 +179,11 @@
 
 				<!-- Image Files -->
 				<div>
-					<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+					<label for="image-files" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
 						Image Files (Optional)
 					</label>
 					<input
+						id="image-files"
 						type="file"
 						accept="image/*"
 						multiple
