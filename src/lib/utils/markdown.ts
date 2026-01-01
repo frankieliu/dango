@@ -101,7 +101,8 @@ export async function renderMarkdown(markdown: string): Promise<string> {
 			const match = matches[i];
 			const lang = match[1] || 'text';
 			const code = match[2];
-			const placeholder = `__CODE_BLOCK_${i}__`;
+			// Use HTML comment as placeholder (markdown won't touch it)
+			const placeholder = `<!--CODE_BLOCK_${i}-->`;
 
 			const highlightedHtml = await highlightCode(code, lang, isDark);
 			codeBlocks.push({ placeholder, html: highlightedHtml });
@@ -113,9 +114,10 @@ export async function renderMarkdown(markdown: string): Promise<string> {
 		// Then, render markdown
 		let html = marked.parse(processed) as string;
 
-		// Replace placeholders with highlighted code
+		// Replace placeholders with highlighted code (use regex to handle any whitespace)
 		codeBlocks.forEach(({ placeholder, html: codeHtml }) => {
-			html = html.replace(placeholder, codeHtml);
+			const escapedPlaceholder = placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+			html = html.replace(new RegExp(escapedPlaceholder, 'g'), codeHtml);
 		});
 
 		// Sanitize HTML to prevent XSS attacks
@@ -147,7 +149,9 @@ export async function renderMarkdown(markdown: string): Promise<string> {
 				'span', // KaTeX and Shiki use spans
 				'div' // KaTeX and Shiki use divs
 			],
-			ALLOWED_ATTR: ['href', 'title', 'target', 'rel', 'class', 'style', 'aria-hidden'] // KaTeX and Shiki need class and style
+			ALLOWED_ATTR: ['href', 'title', 'target', 'rel', 'class', 'style', 'aria-hidden', 'data-language'], // KaTeX and Shiki need class and style
+			ALLOW_DATA_ATTR: true, // Allow data-* attributes for Shiki
+			KEEP_CONTENT: true // Keep content even if tag is not allowed
 		});
 	} catch (error) {
 		console.error('Error rendering markdown:', error);
