@@ -79,14 +79,47 @@ function renderMath(text: string): string {
 }
 
 /**
+ * Replace image references with actual base64 data URLs
+ * Supports: ![alt](0), ![alt](1), ![alt](image-0), ![alt](image-1), etc.
+ */
+function replaceImageReferences(text: string, attachments: string[]): string {
+	if (!attachments || attachments.length === 0) return text;
+
+	// Match markdown image syntax: ![alt text](reference)
+	return text.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, ref) => {
+		// Try to parse as direct index (e.g., "0", "1", "2")
+		let index = parseInt(ref);
+
+		// If not a direct number, try parsing "image-N" format
+		if (isNaN(index)) {
+			const imageMatch = ref.match(/^image-(\d+)$/);
+			if (imageMatch) {
+				index = parseInt(imageMatch[1]);
+			}
+		}
+
+		// If we have a valid index and attachment exists, replace with base64 URL
+		if (!isNaN(index) && index >= 0 && index < attachments.length) {
+			return `![${alt}](${attachments[index]})`;
+		}
+
+		// Otherwise, leave unchanged (could be external URL)
+		return match;
+	});
+}
+
+/**
  * Render markdown to safe HTML
  */
-export async function renderMarkdown(markdown: string): Promise<string> {
+export async function renderMarkdown(markdown: string, attachments: string[] = []): Promise<string> {
 	if (!markdown) return '';
 
 	try {
-		// First, render math expressions
-		let processed = renderMath(markdown);
+		// First, replace image references with actual base64 URLs
+		let processed = replaceImageReferences(markdown, attachments);
+
+		// Then, render math expressions
+		processed = renderMath(processed);
 
 		// Extract code blocks and highlight them
 		const codeBlocks: { placeholder: string; html: string }[] = [];
@@ -131,6 +164,7 @@ export async function renderMarkdown(markdown: string): Promise<string> {
 				'code',
 				'pre',
 				'a',
+				'img',
 				'ul',
 				'ol',
 				'li',
@@ -149,7 +183,7 @@ export async function renderMarkdown(markdown: string): Promise<string> {
 				'span', // KaTeX and Shiki use spans
 				'div' // KaTeX and Shiki use divs
 			],
-			ALLOWED_ATTR: ['href', 'title', 'target', 'rel', 'class', 'style', 'aria-hidden', 'data-language'], // KaTeX and Shiki need class and style
+			ALLOWED_ATTR: ['href', 'title', 'target', 'rel', 'class', 'style', 'aria-hidden', 'data-language', 'src', 'alt'], // KaTeX and Shiki need class and style, img needs src and alt
 			ALLOW_DATA_ATTR: true, // Allow data-* attributes for Shiki
 			KEEP_CONTENT: true // Keep content even if tag is not allowed
 		});
@@ -183,6 +217,7 @@ export function renderMarkdownSync(markdown: string): string {
 				'code',
 				'pre',
 				'a',
+				'img',
 				'ul',
 				'ol',
 				'li',

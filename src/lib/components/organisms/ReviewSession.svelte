@@ -151,19 +151,8 @@
 				<div class="mb-6">
 					<div class="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-2">Question</div>
 					<div class="text-xl">
-						<MarkdownRenderer content={currentCard.front} />
+						<MarkdownRenderer content={currentCard.front} attachments={currentCard.attachments} />
 					</div>
-					{#if currentCard.attachments && currentCard.attachments.length > 0}
-						<div class="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-3">
-							{#each currentCard.attachments as attachment, index}
-								<img
-									src={attachment}
-									alt="Attachment {index + 1}"
-									class="w-full h-32 object-cover rounded-lg border border-gray-200 dark:border-gray-700"
-								/>
-							{/each}
-						</div>
-					{/if}
 				</div>
 
 				<!-- Back (revealed) -->
@@ -171,7 +160,7 @@
 					<div class="border-t border-gray-200 dark:border-gray-700 pt-6">
 						<div class="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-2">Answer</div>
 						<div class="text-xl">
-							<MarkdownRenderer content={currentCard.back} />
+							<MarkdownRenderer content={currentCard.back} attachments={currentCard.attachments} />
 						</div>
 					</div>
 				{/if}

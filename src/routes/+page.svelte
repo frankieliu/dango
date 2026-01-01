@@ -301,7 +301,7 @@
 															>Front:</span
 														>
 														<div class="break-words">
-															<MarkdownRenderer content={card.front} />
+															<MarkdownRenderer content={card.front} attachments={card.attachments} />
 														</div>
 													</div>
 													<div>
@@ -309,7 +309,7 @@
 															>Back:</span
 														>
 														<div class="break-words">
-															<MarkdownRenderer content={card.back} />
+															<MarkdownRenderer content={card.back} attachments={card.attachments} />
 														</div>
 													</div>
 													{#if card.tags.length > 0}

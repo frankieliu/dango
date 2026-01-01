@@ -96,9 +96,14 @@
 				<div class="relative group">
 					<img
 						src={image}
-						alt="Attachment {index + 1}"
+						alt="Attachment {index}"
 						class="w-full h-32 object-cover rounded-lg border border-gray-200 dark:border-gray-700"
 					/>
+					<!-- Index badge -->
+					<div class="absolute bottom-2 left-2 bg-black bg-opacity-75 text-white text-xs px-2 py-1 rounded">
+						{index}
+					</div>
+					<!-- Remove button -->
 					<button
 						type="button"
 						onclick={() => onRemove(index)}
@@ -118,5 +123,8 @@
 				</div>
 			{/each}
 		</div>
+		<p class="text-xs text-gray-500 dark:text-gray-400 mt-2">
+			Use ![description](0), ![description](1), etc. in your markdown to reference these images
+		</p>
 	{/if}
 </div>

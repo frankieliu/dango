@@ -3,12 +3,13 @@
 
 	interface Props {
 		content: string;
+		attachments?: string[];
 		class?: string;
 	}
 
-	let { content, class: className = '' }: Props = $props();
+	let { content, attachments = [], class: className = '' }: Props = $props();
 
-	let htmlPromise = $derived(renderMarkdown(content));
+	let htmlPromise = $derived(renderMarkdown(content, attachments));
 </script>
 
 {#await htmlPromise}
@@ -122,5 +123,9 @@
 
 	:global(.markdown-content mark) {
 		@apply bg-yellow-200 dark:bg-yellow-800;
+	}
+
+	:global(.markdown-content img) {
+		@apply max-w-full h-auto rounded-lg my-2;
 	}
 </style>
